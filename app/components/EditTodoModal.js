@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { Actions } from 'react-native-router-flux';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import {
   ListView,
   StyleSheet,
@@ -8,17 +11,10 @@ import {
   Animated,
   Dimensions,
   TouchableOpacity,
+  ToastAndroid,
+  DatePickerAndroid,
   View,
 } from 'react-native';
-import {
-  Scene,
-  Router,
-  Actions,
-  Reducer,
-  ActionConst,
-} from 'react-native-router-flux';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 
 import * as TodoActions from '../actions/todoActions.js';
 
@@ -70,7 +66,21 @@ const styles = {
 
   buttonWrapper: {
     marginBottom: deviceHeight * 0.1,
+    width: deviceWidth * 0.7,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
+};
+
+const isDateFormatValid = (year, month, day) =>
+  year === undefined || month === undefined || day === undefined;
+
+const toRussianDateLocale = (year, month, day) => {
+  const date = isDateFormatValid(year, month, day)
+    ? new Date()
+    : new Date(year, month, day);
+  return date.toLocaleDateString().replace(/(^\d{2})\/(\d{2})\//g, '$2.$1.');
 };
 
 class AddTodoModal extends Component {
@@ -79,42 +89,61 @@ class AddTodoModal extends Component {
     const { todo = {} } = props;
     this.isFieldsEmpty = this.isFieldsEmpty.bind(this);
     this.handleCreateTodo = this.handleCreateTodo.bind(this);
+    this.handleDate = this.handleDate.bind(this);
 
     this.state = {
+      id: todo.id,
       text: todo.text || '',
-      date: todo.date || '24.07.2017',
+      date: todo.date || toRussianDateLocale(),
       offset: new Animated.Value(-deviceHeight),
     };
   }
 
   componentDidMount() {
     Animated.timing(this.state.offset, {
-      duration: 150,
+      duration: 100,
       toValue: 0,
     }).start();
   }
 
   closeModal() {
     Animated.timing(this.state.offset, {
-      duration: 150,
+      duration: 60,
       toValue: -deviceHeight,
     }).start(Actions.pop);
   }
 
   handleCreateTodo() {
     if (this.isFieldsEmpty()) {
+      ToastAndroid.show('Please, fill all fields.', ToastAndroid.SHORT);
       return;
     }
-    this.props.actions.addTodo({
+
+    this.props.actions.editTodo({
+      id: this.state.id,
       text: this.state.text,
       date: this.state.date,
     });
-    
+
     this.closeModal();
   }
 
   isFieldsEmpty() {
     return this.state.text === '' || this.state.date === '';
+  }
+
+  handleDate() {
+    DatePickerAndroid.open({
+      date: new Date(),
+    })
+      .then(({ action, year, month, day }) => {
+        if (action !== DatePickerAndroid.dissmisAction) {
+          this.setState({ date: toRussianDateLocale(year, month, day) });
+        }
+      })
+      .catch(({ code, message }) =>
+        console.warn('Cannot open date picker', message),
+      );
   }
 
   render() {
@@ -130,20 +159,30 @@ class AddTodoModal extends Component {
             <Text>Description:</Text>
             <TextInput
               style={styles.input}
-              onChangeText={text => this.setState({ text })}
               value={this.state.text}
+              onChangeText={text => this.setState({ text })}
             />
           </View>
           <View style={styles.inputWrapper}>
             <Text>Due date:</Text>
-            <TextInput style={styles.input} value={this.state.date} />
+            <TextInput
+              style={styles.input}
+              value={this.state.date}
+              onFocus={this.handleDate}
+            />
           </View>
           <View style={styles.buttonWrapper}>
             <Button
               onPress={this.handleCreateTodo}
               color="#841584"
-              title="ADD TODO"
-              accessibilityLabel="add todo"
+              title="SAVE"
+              accessibilityLabel="save"
+            />
+            <Button
+              onPress={this.closeModal.bind(this)}
+              color="#841584"
+              title="BACK"
+              accessibilityLabel="save"
             />
           </View>
         </View>

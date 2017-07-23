@@ -18,7 +18,7 @@ import {
 } from 'react-native-router-flux';
 
 import TodoList from './app/components/TodoList.js';
-import AddTodoModal from './app/components/AddTodoModal.js';
+import EditTodoModal from './app/components/EditTodoModal.js';
 import reducer from './app/reducers/reducer.js';
 
 const store = createStore(reducer);
@@ -34,11 +34,12 @@ export default class App extends Component {
           <Scene key="root">
             <Scene
               initial
+              lighthouse
               key="todoList"
               component={TodoList}
               title="Todo list"
             />
-            <Scene key="addTodo" component={AddTodoModal} title="Add Todo" />
+          <Scene key="editTodo" hideNavBar modal component={EditTodoModal}/>
           </Scene>
         </Router>
       </Provider>

@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Switch, Text, Dimensions } from 'react-native';
+import { Actions } from 'react-native-router-flux';
+import {
+  StyleSheet,
+  View,
+  Switch,
+  Text,
+  Dimensions,
+  TouchableHighlight,
+} from 'react-native';
 
 const { height, width } = Dimensions.get('window');
 const deviceHeight = Math.max(height, width);
@@ -29,17 +37,22 @@ export default class TodoItem extends Component {
     const { id, text, date, done } = todo;
 
     return (
-      <View style={styles.todo}>
-        <View>
-          <Text style={styles.text}>
-            {text}
-          </Text>
-          <Text style={styles.date}>
-            {date}
-          </Text>
+      <TouchableHighlight
+        underlayColor="rgba(200,200,200,0.3)"
+        onLongPress={() => Actions.editTodo({ todo })}
+      >
+        <View style={styles.todo}>
+          <View>
+            <Text style={styles.text}>
+              {text}
+            </Text>
+            <Text style={styles.date}>
+              {date}
+            </Text>
+          </View>
+          <Switch onValueChange={() => toggleTodo(todo)} value={done} />
         </View>
-        <Switch onValueChange={() => toggleTodo(todo)} value={done} />
-      </View>
+      </TouchableHighlight>
     );
   }
 }

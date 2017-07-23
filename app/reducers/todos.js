@@ -20,14 +20,14 @@ const getNextId = state =>
 function todos(state = initialState, action) {
   const payload = action.payload;
   switch (action.type) {
-    case types.ADD_TODO:
-      const { text, date } = payload.todo;
-      return [...state, new TodoItem(getNextId(state), text, date)];
-
     case types.EDIT_TODO:
-      return state.map(
-        todo => (todo.id === payload.id ? { ...todo, ...payload.todo } : todo),
-      );
+      const { id, text, date } = payload.todo;
+      return id === undefined
+        ? [...state, new TodoItem(getNextId(state), text, date)]
+        : state.map(
+            todo =>
+              todo.id === payload.todo.id ? { ...todo, ...payload.todo } : todo,
+          );
 
     case types.TOGGLE_TODO:
       return state.map(

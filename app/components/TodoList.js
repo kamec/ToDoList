@@ -81,7 +81,7 @@ class TodoList extends Component {
       <View {...this.props} style={styles.container}>
         <View style={styles.options}>
           <TouchableOpacity
-            onPress={() => Actions.addTodo()}
+            onPress={() => Actions.editTodo()}
             style={styles.add}
           >
             <Text style={styles.text}>+ ADD A TODO</Text>
