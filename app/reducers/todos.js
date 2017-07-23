@@ -9,13 +9,13 @@ class TodoItem {
   }
 }
 
+let nextId = 0;
+
 const initialState = [
-  new TodoItem(0, 'text', '23.07.17'),
-  new TodoItem(1, 'text2', '23.07.17', true),
+  new TodoItem(nextId++, 'text', '23.07.17'),
+  new TodoItem(nextId++, 'text2', '23.07.17', true),
 ];
 
-const getNextId = state =>
-  state.reduce((maxId, todo) => Math.max(todo.id, maxId), -1) + 1;
 
 function todos(state = initialState, action) {
   const payload = action.payload;
@@ -23,7 +23,7 @@ function todos(state = initialState, action) {
     case types.EDIT_TODO:
       const { id, text, date } = payload.todo;
       return id === undefined
-        ? [...state, new TodoItem(getNextId(state), text, date)]
+        ? [...state, new TodoItem(nextId++, text, date)]
         : state.map(
             todo =>
               todo.id === payload.todo.id ? { ...todo, ...payload.todo } : todo,
