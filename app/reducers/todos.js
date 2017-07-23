@@ -9,7 +9,10 @@ class TodoItem {
   }
 }
 
-const initialState = [new TodoItem('text', '23.07.17')];
+const initialState = [
+  new TodoItem(0, 'text', '23.07.17'),
+  new TodoItem(1, 'text2', '23.07.17', true),
+];
 
 const getNextId = state =>
   state.reduce((maxId, todo) => Math.max(todo.id, maxId), -1) + 1;
@@ -18,7 +21,8 @@ function todos(state = initialState, action) {
   const payload = action.payload;
   switch (action.type) {
     case types.ADD_TODO:
-      return [...state, new TodoItem(...payload)];
+      const { text, date } = payload.todo;
+      return [...state, new TodoItem(getNextId(state), text, date)];
 
     case types.EDIT_TODO:
       return state.map(
@@ -27,12 +31,12 @@ function todos(state = initialState, action) {
 
     case types.TOGGLE_TODO:
       return state.map(
-        todo =>
-          todo.id === payload.id ? { ...todo, ...{ done: !todo.done } } : todo,
+        todo => (todo.id === payload.id ? { ...todo, done: !todo.done } : todo),
       );
 
     default:
       return state;
   }
 }
+
 export default todos;

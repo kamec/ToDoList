@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
+import { createStore, bindActionCreators } from 'redux';
+import { Provider, connect } from 'react-redux';
 import {
   ListView,
   StyleSheet,
@@ -33,9 +33,9 @@ export default class App extends Component {
         <Router>
           <Scene key="root">
             <Scene
+              initial
               key="todoList"
               component={TodoList}
-              initial
               title="Todo list"
             />
             <Scene key="addTodo" component={AddTodoModal} title="Add Todo" />
@@ -45,3 +45,5 @@ export default class App extends Component {
     );
   }
 }
+
+

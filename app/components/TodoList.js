@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import {
   ListView,
   StyleSheet,
@@ -10,17 +12,56 @@ import {
 import { Actions } from 'react-native-router-flux';
 
 import TodoItem from './TodoItem';
+import * as TodoActions from '../actions/todoActions.js';
 
-export default class TodoList extends Component {
-  constructor(...args) {
-    super(...args);
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F5FCFF',
+    marginTop: 40,
+  },
+  options: {
+    flexDirection: 'column',
+  },
+  add: {
+    padding: 10,
+    alignItems: 'flex-end',
+  },
+  hide: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'space-around',
+    padding: 10,
+  },
+  text: {
+    fontSize: 20,
+  },
+});
+
+const mapStateToProps = state => ({ todos: state.todos });
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(TodoActions, dispatch),
+  dispatch,
+});
+
+class TodoList extends Component {
+  constructor(props) {
+    super(props);
     this.state = {
       dataSource: new ListView.DataSource({
         rowHasChanged: (r1, r2) => r1 !== r2,
       }),
       onlyShowNotDone: false,
-      todos: [],
+      todos: props.todos,
     };
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    this.setState({todos: nextProps.todos})
+  }
+
+  toggleTodo(todoId) {
+    this.props.actions.toggleTodo(todoId);
   }
 
   renderTodo(todo) {
@@ -28,19 +69,16 @@ export default class TodoList extends Component {
       <TodoItem
         isLast={this.state.todos.indexOf(todo) === this.state.todos.length - 1}
         todo={todo}
-        toggleTodo={this.toggleTodo.bind(this, todo)}
+        toggleTodo={this.toggleTodo.bind(this, todo.id)}
       />
     );
   }
   render() {
-    const todos = this.state.todos.filter(todo => {
-      if (this.state.onlyShowNotDone) {
-        return !todo.done;
-      }
-      return true;
-    });
+    const todos = this.state.todos.filter(
+      todo => (this.state.onlyShowNotDone ? !todo.done : true),
+    );
     return (
-      <View style={styles.container}>
+      <View {...this.props} style={styles.container}>
         <View style={styles.options}>
           <TouchableOpacity
             onPress={() => Actions.addTodo()}
@@ -64,25 +102,5 @@ export default class TodoList extends Component {
     );
   }
 }
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#F5FCFF',
-    marginTop: 40,
-  },
-  options: {
-    flexDirection: 'column',
-  },
-  add: {
-    padding: 10,
-    alignItems: 'flex-end',
-  },
-  hide: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'space-around',
-    padding: 10,
-  },
-  text: {
-    fontSize: 20,
-  },
-});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
